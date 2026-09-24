@@ -1,0 +1,13 @@
+# Sistema operacional / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Temporários
+*.log
+*.tmp
+*.bak
+
+# Dependências (não utilizadas neste projeto, mantido por segurança)
+node_modules/

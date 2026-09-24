@@ -1,0 +1,221 @@
+import { renderizarPagina } from "./router.js";
+import {
+    alternarInteresse,
+    buscarInteresses,
+    buscarUltimaRota,
+    buscarAltoContraste,
+    salvarAltoContraste
+} from "./storage.js";
+import { limparValidacao, processarCadastro, tratarInput } from "./validacao.js";
+import { mostrarToast } from "./feedback.js";
+import { projetos } from "./templates.js";
+
+const app = document.getElementById("app");
+const menu = document.getElementById("menuPrincipal");
+const botaoMenu = document.getElementById("botaoMenu");
+const botaoSubmenu = document.getElementById("botaoSubmenu");
+const submenu = document.getElementById("submenuProjetos");
+const modal = document.getElementById("modalProjeto");
+const btnContraste = document.getElementById("btnContraste");
+let elementoQueAbriuModal = null;
+
+function fecharMenuMobile() {
+    menu.classList.remove("aberto");
+    botaoMenu.setAttribute("aria-expanded", "false");
+    botaoMenu.setAttribute("aria-label", "Abrir menu de navegação");
+}
+
+function alternarMenuMobile() {
+    const aberto = menu.classList.toggle("aberto");
+    botaoMenu.setAttribute("aria-expanded", String(aberto));
+    botaoMenu.setAttribute("aria-label", aberto ? "Fechar menu de navegação" : "Abrir menu de navegação");
+}
+
+function alternarSubmenu() {
+    const aberto = submenu.classList.toggle("aberto");
+    botaoSubmenu.setAttribute("aria-expanded", String(aberto));
+    botaoSubmenu.setAttribute("aria-label", aberto ? "Fechar submenu de projetos" : "Abrir submenu de projetos");
+}
+
+function aplicarAltoContraste(ativo) {
+    document.body.classList.toggle("alto-contraste", ativo);
+    btnContraste.setAttribute("aria-pressed", String(ativo));
+    btnContraste.setAttribute(
+        "aria-label",
+        ativo ? "Desativar modo de alto contraste" : "Ativar modo de alto contraste"
+    );
+    btnContraste.textContent = ativo ? "Contraste normal" : "Alto contraste";
+}
+
+function alternarAltoContraste() {
+    const ativo = !document.body.classList.contains("alto-contraste");
+    aplicarAltoContraste(ativo);
+    salvarAltoContraste(ativo);
+    mostrarToast(ativo ? "Modo de alto contraste ativado." : "Modo de contraste normal ativado.");
+}
+
+function abrirModal(idProjeto, botaoOrigem) {
+    const projeto = projetos.find(item => item.id === idProjeto);
+
+    if (!projeto) {
+        return;
+    }
+
+    elementoQueAbriuModal = botaoOrigem;
+    document.getElementById("modalTitulo").textContent = projeto.titulo;
+    document.getElementById("modalDescricao").textContent = projeto.detalhes;
+    modal.hidden = false;
+    document.body.classList.add("modal-aberto");
+    modal.querySelector(".modal-fechar").focus();
+}
+
+function fecharModal() {
+    if (modal.hidden) {
+        return;
+    }
+
+    modal.hidden = true;
+    document.body.classList.remove("modal-aberto");
+    elementoQueAbriuModal?.focus();
+}
+
+function manterFocoNoModal(event) {
+    if (modal.hidden || event.key !== "Tab") {
+        return;
+    }
+
+    const focaveis = [...modal.querySelectorAll(
+        'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )].filter(elemento => !elemento.hidden);
+
+    if (!focaveis.length) {
+        return;
+    }
+
+    const primeiro = focaveis[0];
+    const ultimo = focaveis[focaveis.length - 1];
+
+    if (event.shiftKey && document.activeElement === primeiro) {
+        event.preventDefault();
+        ultimo.focus();
+    } else if (!event.shiftKey && document.activeElement === ultimo) {
+        event.preventDefault();
+        primeiro.focus();
+    }
+}
+
+function atualizarBotaoInteresse(botao, idProjeto) {
+    const interesses = alternarInteresse(idProjeto);
+    const selecionado = interesses.includes(idProjeto);
+    botao.setAttribute("aria-pressed", String(selecionado));
+    botao.textContent = selecionado ? "Interesse salvo" : "Tenho interesse";
+    mostrarToast(selecionado ? "Interesse salvo neste navegador." : "Interesse removido.");
+}
+
+function focarProjetoPendente() {
+    const id = sessionStorage.getItem("focoProjeto");
+
+    if (!id) {
+        return;
+    }
+
+    sessionStorage.removeItem("focoProjeto");
+    const alvo = document.getElementById(id);
+
+    if (alvo) {
+        alvo.setAttribute("tabindex", "-1");
+        alvo.focus();
+        alvo.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+}
+
+botaoMenu.addEventListener("click", alternarMenuMobile);
+botaoSubmenu.addEventListener("click", alternarSubmenu);
+btnContraste.addEventListener("click", alternarAltoContraste);
+
+menu.addEventListener("click", event => {
+    const link = event.target.closest("a");
+
+    if (!link) {
+        return;
+    }
+
+    if (link.dataset.foco) {
+        sessionStorage.setItem("focoProjeto", link.dataset.foco);
+    }
+
+    submenu.classList.remove("aberto");
+    botaoSubmenu.setAttribute("aria-expanded", "false");
+    botaoSubmenu.setAttribute("aria-label", "Abrir submenu de projetos");
+    fecharMenuMobile();
+});
+
+app.addEventListener("submit", event => {
+    if (event.target.id === "formCadastro") {
+        event.preventDefault();
+        processarCadastro(event.target);
+    }
+});
+
+app.addEventListener("input", event => {
+    tratarInput(event.target);
+});
+
+app.addEventListener("change", event => {
+    tratarInput(event.target);
+});
+
+app.addEventListener("click", event => {
+    const botaoProjeto = event.target.closest(".btn-projeto");
+    const botaoInteresse = event.target.closest(".btn-interesse");
+    const botaoLimpar = event.target.closest('button[type="reset"]');
+
+    if (botaoLimpar && botaoLimpar.form?.id === "formCadastro") {
+        requestAnimationFrame(() => limparValidacao(botaoLimpar.form));
+    }
+
+    if (botaoProjeto) {
+        abrirModal(botaoProjeto.dataset.projeto, botaoProjeto);
+    }
+
+    if (botaoInteresse) {
+        atualizarBotaoInteresse(botaoInteresse, botaoInteresse.dataset.interesse);
+    }
+});
+
+modal.addEventListener("click", event => {
+    if (event.target.matches("[data-fechar-modal]")) {
+        fecharModal();
+    }
+});
+
+document.addEventListener("keydown", event => {
+    manterFocoNoModal(event);
+
+    if (event.key === "Escape") {
+        fecharModal();
+        submenu.classList.remove("aberto");
+        botaoSubmenu.setAttribute("aria-expanded", "false");
+        botaoSubmenu.setAttribute("aria-label", "Abrir submenu de projetos");
+        fecharMenuMobile();
+    }
+});
+
+window.addEventListener("hashchange", () => {
+    renderizarPagina();
+    requestAnimationFrame(focarProjetoPendente);
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+    aplicarAltoContraste(buscarAltoContraste());
+
+    const rotaInicial = window.location.hash || buscarUltimaRota();
+
+    if (!window.location.hash) {
+        history.replaceState(null, "", rotaInicial);
+    }
+
+    renderizarPagina({ manterFoco: true });
+    buscarInteresses();
+    requestAnimationFrame(focarProjetoPendente);
+});

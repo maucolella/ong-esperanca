@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="description"
+        content="ONG Esperança - projetos sociais, voluntariado e doações.">
+    <meta name="theme-color" content="#0B4F6C">
+
+    <title>ONG Esperança</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <a class="skip-link" href="#app">
+        Ir para o conteúdo principal
+    </a>
+
+    <noscript>
+        <p class="aviso-sem-js">Esta aplicação utiliza JavaScript para navegação e interatividade.</p>
+    </noscript>
+
+    <header class="cabecalho">
+
+        <div class="cabecalho-conteudo">
+
+            <h1>ONG Esperança</h1>
+
+            <!-- MODO DE ALTO CONTRASTE -->
+            <button
+                id="btnContraste"
+                class="botao-contraste"
+                type="button"
+                aria-pressed="false"
+                aria-label="Ativar modo de alto contraste">
+                Alto contraste
+            </button>
+
+            <!-- MENU MOBILE -->
+            <button
+                class="menu-hamburguer"
+                id="botaoMenu"
+                type="button"
+                aria-controls="menuPrincipal"
+                aria-expanded="false"
+                aria-label="Abrir menu de navegação">
+                ☰
+            </button>
+
+            <!-- NAVEGAÇÃO -->
+            <nav
+                id="menuPrincipal"
+                class="navegacao"
+                aria-label="Navegação principal">
+
+                <ul class="menu">
+
+                    <li>
+                        <a href="#inicio" data-rota="inicio">
+                            Início
+                        </a>
+                    </li>
+
+                    <li class="menu-item">
+
+                        <div class="menu-projetos-linha">
+
+                            <a
+                                href="#projetos"
+                                data-rota="projetos">
+                                Projetos
+                            </a>
+
+                            <button
+                                class="submenu-toggle"
+                                id="botaoSubmenu"
+                                type="button"
+                                aria-controls="submenuProjetos"
+                                aria-expanded="false"
+                                aria-label="Abrir submenu de projetos">
+                                ▾
+                            </button>
+
+                        </div>
+
+                        <ul
+                            class="submenu"
+                            id="submenuProjetos">
+
+                            <li>
+                                <a
+                                    href="#projetos"
+                                    data-foco="voluntariado">
+                                    Voluntariado
+                                </a>
+                            </li>
+
+                            <li>
+                                <a
+                                    href="#projetos"
+                                    data-foco="doacoes">
+                                    Doações
+                                </a>
+                            </li>
+
+                            <li>
+                                <a
+                                    href="#projetos"
+                                    data-foco="campanhas">
+                                    Campanhas
+                                </a>
+                            </li>
+
+                        </ul>
+
+                    </li>
+
+                    <li>
+                        <a href="#cadastro" data-rota="cadastro">
+                            Cadastro
+                        </a>
+                    </li>
+
+                </ul>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+    <!-- AVISO PARA LEITORES DE TELA -->
+    <div
+        id="anuncioRota"
+        class="sr-only"
+        aria-live="polite"
+        aria-atomic="true">
+    </div>
+
+    <!-- CONTEÚDO DA SPA -->
+    <main
+        id="app"
+        tabindex="-1">
+    </main>
+
+    <footer>
+        <p>
+            &copy; 2026 ONG Esperança -
+            Todos os direitos reservados.
+        </p>
+    </footer>
+
+    <!-- TOAST -->
+    <div
+        id="toast"
+        class="toast"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true">
+    </div>
+
+    <!-- MODAL -->
+    <div
+        class="modal"
+        id="modalProjeto"
+        hidden>
+
+        <div
+            class="modal-backdrop"
+            data-fechar-modal>
+        </div>
+
+        <section
+            class="modal-caixa"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modalTitulo"
+            aria-describedby="modalDescricao">
+
+            <button
+                class="modal-fechar"
+                type="button"
+                data-fechar-modal
+                aria-label="Fechar janela">
+                ×
+            </button>
+
+            <h2 id="modalTitulo">
+                Detalhes do projeto
+            </h2>
+
+            <p id="modalDescricao"></p>
+
+        </section>
+
+    </div>
+
+    <script
+        type="module"
+        src="js/main.js">
+    </script>
+
+</body>
+
+</html>
